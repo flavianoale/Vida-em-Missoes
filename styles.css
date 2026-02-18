@@ -1,0 +1,41 @@
+
+:root{--bg:#0b0b0d;--text:#f0f0f2;--muted:#a8a8b3;--line:#25252d;--gold:#c9a227;--bad:#e74c3c;--warn:#f1c40f;--ok:#2ecc71;}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 20% -10%, rgba(201,162,39,.08), transparent 55%),radial-gradient(900px 500px at 90% 0%, rgba(31,157,106,.08), transparent 55%),var(--bg);color:var(--text);}
+.top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 10px;border-bottom:1px solid var(--line);background:linear-gradient(to bottom, rgba(11,11,13,.95), rgba(11,11,13,.75));backdrop-filter:saturate(180%) blur(12px);}
+.brand{display:flex;gap:10px;align-items:center}
+.sigil{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;border:1px solid rgba(201,162,39,.35);background:rgba(201,162,39,.08);color:var(--gold);font-weight:800}
+.title{font-weight:800}.sub{font-size:12px;color:var(--muted)}
+.wrap{max-width:860px;margin:0 auto;padding:14px 14px 86px;display:grid;gap:12px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));border:1px solid var(--line);border-radius:16px;padding:14px}
+h2{font-size:16px;margin:0 0 10px}
+.row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.small{font-size:12px}.muted{color:var(--muted)}.warn{color:var(--warn)}.hidden{display:none!important}
+.kpi{min-width:120px}.kpi-label{font-size:12px;color:var(--muted)}.kpi-value{font-size:20px;font-weight:800}
+.progress{height:10px;border-radius:999px;background:#0f0f12;border:1px solid var(--line);overflow:hidden;margin-top:12px}
+.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok));transition:width .25s ease}
+.missions{display:grid;gap:10px}
+.mission{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(15,15,18,.9)}
+.mleft{display:flex;gap:10px;align-items:center}
+.icon{width:28px;height:28px;display:grid;place-items:center;font-size:18px}
+.mtitle{font-weight:800}.mdesc{font-size:12px;color:var(--muted);margin-top:2px}
+.btn{border:1px solid rgba(201,162,39,.35);background:rgba(201,162,39,.12);color:var(--text);padding:10px 12px;border-radius:12px;font-weight:800;cursor:pointer}
+.btn.done{background:rgba(31,157,106,.14);border-color:rgba(31,157,106,.35)}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer}
+.toggle{display:flex;gap:8px;align-items:center;user-select:none}.toggle input{transform:scale(1.1)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:160px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.select{background:#0f0f12;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.panel{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(15,15,18,.7)}
+.panelTitle{font-weight:800;margin-bottom:10px}
+.divider{height:1px;background:var(--line);margin:12px 0}
+.list{display:grid;gap:8px;margin-top:10px}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(15,15,18,.85)}
+.item .meta{font-size:12px;color:var(--muted)}
+.badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(201,162,39,.35);background:rgba(201,162,39,.10);color:var(--gold);font-weight:800}
+.badge.ok{border-color:rgba(31,157,106,.35);background:rgba(31,157,106,.12);color:#1f9d6a}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:space-around;gap:6px;padding:10px 10px 14px;border-top:1px solid var(--line);background:linear-gradient(to top, rgba(11,11,13,.95), rgba(11,11,13,.75));backdrop-filter:saturate(180%) blur(12px)}
+.navbtn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:14px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:78px;font-weight:800}
+.navbtn span{font-size:11px;color:var(--muted);font-weight:700}
+.navbtn.active{border-color:rgba(201,162,39,.35);background:rgba(201,162,39,.10)}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0b0b0d"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <title>Vida em Missões 2.0</title>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="sigil">✝</div>
+    <div>
+      <div class="title">Vida em Missões</div>
+      <div class="sub">2.0 • campanha 90 dias • nuvem</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="btnSync" class="ghost" title="Sincronizar">⟲</button>
+    <button id="btnLogout" class="ghost hidden" title="Sair">⎋</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" id="viewAuth">
+    <h2>Entrar</h2>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="seu@email.com"/></div>
+    <div class="field"><label>Senha</label><input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••"/></div>
+    <div class="row">
+      <button id="btnLogin" class="btn">Entrar</button>
+      <button id="btnSignup" class="ghost">Criar conta</button>
+    </div>
+    <div class="small warn" id="authMsg"></div>
+  </section>
+
+  <section class="card hidden" id="viewHome">
+    <div class="row">
+      <div class="kpi"><div class="kpi-label">Hoje</div><div class="kpi-value"><span id="todayScore">0</span>/5</div></div>
+      <div class="kpi"><div class="kpi-label">Status</div><div class="kpi-value" id="todayStatus">—</div></div>
+      <div class="kpi"><div class="kpi-label">Streak</div><div class="kpi-value"><span id="streak">0</span> 🔥</div></div>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="row small">
+      <div>Dia <strong id="dayInCampaign">1</strong>/90 • Fase: <strong id="phase">Recruta</strong></div>
+      <div>Semana: <strong id="weekPoints">0</strong>/35 • Rank: <strong id="rank">C</strong></div>
+    </div>
+  </section>
+
+  <section class="card hidden" id="viewMissions">
+    <h2>Missões</h2>
+    <div class="missions" id="missions"></div>
+    <div class="row small">
+      <label class="toggle"><input id="sfxToggle" type="checkbox" checked/><span>Som</span></label>
+      <label class="toggle"><input id="musicToggle" type="checkbox"/><span>Música</span></label>
+    </div>
+  </section>
+
+  <section class="card hidden" id="viewLogs">
+    <h2>Registro</h2>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelTitle">Dieta</div>
+        <div class="row small">
+          <div class="field"><label>kcal</label><input id="kcal" type="number" step="10" min="0"/></div>
+          <div class="field"><label>P</label><input id="p" type="number" step="5" min="0"/></div>
+          <div class="field"><label>C</label><input id="c" type="number" step="5" min="0"/></div>
+          <div class="field"><label>G</label><input id="g" type="number" step="5" min="0"/></div>
+        </div>
+        <div class="small muted" id="macroTargets">Meta: —</div>
+      </div>
+      <div class="panel">
+        <div class="panelTitle">Leitura + Peso</div>
+        <div class="row small">
+          <div class="field"><label>Páginas</label><input id="readPages" type="number" step="1" min="0"/></div>
+          <div class="field"><label>Peso (kg)</label><input id="weight" type="number" step="0.1" min="0"/></div>
+        </div>
+        <div class="small muted" id="readTarget">Meta: —</div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="btnSaveLogs" class="btn">Salvar</button>
+      <button id="btnToConfig" class="ghost">Config</button>
+    </div>
+    <div class="small warn" id="logMsg"></div>
+  </section>
+
+  <section class="card hidden" id="viewWorkout">
+    <h2>Treino</h2>
+    <div class="row small">
+      <div class="field"><label>Músculo</label>
+        <select id="wMuscle" class="select">
+          <option>Peito</option><option>Costas</option><option>Ombro</option><option>Bíceps</option><option>Tríceps</option><option>Perna</option><option>Abdômen</option>
+        </select>
+      </div>
+      <div class="field"><label>Exercício</label><input id="wExercise" placeholder="Supino reto"/></div>
+      <div class="field"><label>Carga (kg)</label><input id="wLoad" type="number" step="0.5" min="0"/></div>
+      <div class="field"><label>Reps</label><input id="wReps" type="number" step="1" min="0"/></div>
+      <div class="field"><label>Séries</label><input id="wSets" type="number" step="1" min="1" value="1"/></div>
+    </div>
+    <div class="row">
+      <button id="btnAddSet" class="btn">Adicionar</button>
+      <button id="btnRefreshWorkout" class="ghost">Atualizar</button>
+    </div>
+    <div class="small warn" id="workoutMsg"></div>
+    <div class="divider"></div>
+    <div class="panelTitle">Hoje</div>
+    <div class="list" id="workoutList"></div>
+    <div class="divider"></div>
+    <div class="panelTitle">PR por músculo</div>
+    <div class="list" id="prList"></div>
+  </section>
+
+  <section class="card hidden" id="viewStudy">
+    <h2>Estudo</h2>
+    <div class="row small">
+      <div class="field"><label>Matéria</label><input id="sSubject" placeholder="Genética"/></div>
+      <div class="field"><label>Blocos (50min)</label><input id="sBlocks" type="number" step="1" min="1" value="1"/></div>
+    </div>
+    <div class="row">
+      <button id="btnAddStudy" class="btn">Adicionar</button>
+      <button id="btnRefreshStudy" class="ghost">Atualizar</button>
+    </div>
+    <div class="small warn" id="studyMsg"></div>
+    <div class="divider"></div>
+    <div class="panelTitle">Hoje</div>
+    <div class="list" id="studyList"></div>
+  </section>
+
+  <section class="card hidden" id="viewConfig">
+    <h2>Config</h2>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panelTitle">Metas</div>
+        <div class="row small">
+          <div class="field"><label>kcal</label><input id="tKcal" type="number" step="10" min="0"/></div>
+          <div class="field"><label>P</label><input id="tP" type="number" step="5" min="0"/></div>
+          <div class="field"><label>C</label><input id="tC" type="number" step="5" min="0"/></div>
+          <div class="field"><label>G</label><input id="tG" type="number" step="5" min="0"/></div>
+        </div>
+        <div class="row small">
+          <div class="field"><label>Leitura (pág/dia)</label><input id="rMin" type="number" step="1" min="0"/></div>
+          <div class="field"><label>Acordar</label><input id="wake" type="time"/></div>
+          <div class="field"><label>Notificar</label><input id="notify" type="time"/></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelTitle">Música</div>
+        <div class="field"><label>URL mp3</label><input id="musicUrl" placeholder="https://.../sua-musica.mp3"/></div>
+        <div class="small muted">Suba no Supabase Storage (bucket media) e use link público.</div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="btnSaveConfig" class="btn">Salvar</button>
+      <button id="btnBackHome" class="ghost">Voltar</button>
+    </div>
+    <div class="small warn" id="cfgMsg"></div>
+  </section>
+</main>
+
+<nav class="nav hidden" id="nav">
+  <button class="navbtn active" data-tab="home">🏠<span>Hoje</span></button>
+  <button class="navbtn" data-tab="workout">💪<span>Treino</span></button>
+  <button class="navbtn" data-tab="study">🧠<span>Estudo</span></button>
+  <button class="navbtn" data-tab="config">⚙️<span>Config</span></button>
+</nav>
+
+<audio id="sfxDone" preload="auto"><source src="sfx/done.wav" type="audio/wav"></audio>
+<audio id="sfxLevel" preload="auto"><source src="sfx/level.wav" type="audio/wav"></audio>
+<audio id="sfxErr" preload="auto"><source src="sfx/error.wav" type="audio/wav"></audio>
+<audio id="bgm" preload="none" loop></audio>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
