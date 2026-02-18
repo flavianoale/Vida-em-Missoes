@@ -59,7 +59,7 @@ async function init(){
     el("authMsg").textContent = "Falta configurar o sb em config.js.";
     return;
   }
-  sb = window.sb.createClient(SUPA_URL, SUPA_KEY);
+  /*sb = window.sb.createClient(SUPA_URL, SUPA_KEY);*/
 
   wire();
   const { data } = await sb.auth.getSession();
