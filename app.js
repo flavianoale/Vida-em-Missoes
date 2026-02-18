@@ -17,6 +17,8 @@ const esc = (s)=>String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").re
 
 let sb=null, session=null, cfg=null, profile=null, today=null;
 
+session = { user: { id: 'local-dev' } };
+
 const sfxDone = el("sfxDone");
 const sfxLevel = el("sfxLevel");
 const sfxErr = el("sfxErr");
