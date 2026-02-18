@@ -64,7 +64,7 @@ async function init(){
   wire();
   const { data } = await sb.auth.getSession();
   session = data.session;
-  if(session) await boot(true);
+  /*if(session) await boot(true);*/
   else viewAuth();
 
   if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
@@ -94,13 +94,13 @@ function wire(){
 
   sb.auth.onAuthStateChange(async(_ev, s)=>{
     session = s;
-    if(session) await boot(true);
+    /*if(session) await boot(true);*/
     else viewAuth();
   });
 }
 
 function viewAuth(){
-  show("viewAuth", true);
+ /* show("viewAuth", true);*/
   ["viewHome","viewMissions","viewLogs","viewWorkout","viewStudy","viewConfig"].forEach(v=>show(v,false));
   show("nav", false);
   el("btnLogout").classList.add("hidden");
