@@ -1,6 +1,6 @@
 
-const SUPA_URL = window.VIDA_sb_URL;
-const SUPA_KEY = window.VIDA_sb_ANON_KEY;
+const SUPA_URL = window.VIDA_supabase_URL;
+const SUPA_KEY = window.VIDA_supabase_ANON_KEY;
 
 const MISSIONS = [
   { id:"spirit", icon:"⚔️", title:"Espírito", desc:"Oração manhã + noite" },
@@ -15,7 +15,7 @@ const show = (id, on)=>el(id).classList.toggle("hidden", !on);
 const isoDate = (d=new Date())=>{ const x=new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); };
 const esc = (s)=>String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 
-let sb=null, session=null, cfg=null, profile=null, today=null;
+let supabase=null, session=null, cfg=null, profile=null, today=null;
 
 const sfxDone = el("sfxDone");
 const sfxLevel = el("sfxLevel");
@@ -54,13 +54,13 @@ function rank(pts){
 
 async function init(){
   if(!SUPA_URL || SUPA_URL.startsWith("COLE_") || !SUPA_KEY || SUPA_KEY.startsWith("COLE_")){
-    el("authMsg").textContent = "Falta configurar o sb em config.js.";
+    el("authMsg").textContent = "Falta configurar o supabase em config.js.";
     return;
   }
-  sb = window.sb.createClient(SUPA_URL, SUPA_KEY);
+  supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
   wire();
-  const { data } = await sb.auth.getSession();
+  const { data } = await supabase.auth.getSession();
   session = data.session;
   if(session) await boot(true);
   else viewAuth();
@@ -85,12 +85,12 @@ function wire(){
   el("btnAddStudy").onclick = addStudy;
   el("btnRefreshStudy").onclick = refreshStudy;
 
-  el("sfxToggle").onchange = async(e)=>{ cfg.sfx_enabled = e.target.checked; await sb.from("config").update({sfx_enabled:cfg.sfx_enabled}).eq("user_id", session.user.id); };
-  el("musicToggle").onchange = async(e)=>{ cfg.music_enabled = e.target.checked; await sb.from("config").update({music_enabled:cfg.music_enabled}).eq("user_id", session.user.id); music(cfg.music_enabled); };
+  el("sfxToggle").onchange = async(e)=>{ cfg.sfx_enabled = e.target.checked; await supabase.from("config").update({sfx_enabled:cfg.sfx_enabled}).eq("user_id", session.user.id); };
+  el("musicToggle").onchange = async(e)=>{ cfg.music_enabled = e.target.checked; await supabase.from("config").update({music_enabled:cfg.music_enabled}).eq("user_id", session.user.id); music(cfg.music_enabled); };
 
   document.querySelectorAll(".navbtn").forEach(b=> b.onclick = ()=>switchTab(b.dataset.tab));
 
-  sb.auth.onAuthStateChange(async(_ev, s)=>{
+  supabase.auth.onAuthStateChange(async(_ev, s)=>{
     session = s;
     if(session) await boot(true);
     else viewAuth();
@@ -109,7 +109,7 @@ async function login(){
   const email=el("authEmail").value.trim();
   const password=el("authPass").value;
   if(!email||!password){ el("authMsg").textContent="Preencha email e senha."; play(sfxErr); return; }
-  const { error } = await sb.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
   if(error){ el("authMsg").textContent=error.message; play(sfxErr); }
 }
 
@@ -118,13 +118,13 @@ async function signup(){
   const email=el("authEmail").value.trim();
   const password=el("authPass").value;
   if(!email||!password){ el("authMsg").textContent="Preencha email e senha."; play(sfxErr); return; }
-  const { error } = await sb.auth.signUp({ email, password });
+  const { error } = await supabase.auth.signUp({ email, password });
   if(error){ el("authMsg").textContent=error.message; play(sfxErr); return; }
   el("authMsg").textContent="Conta criada. Confirme o email se estiver habilitado.";
 }
 
 async function logout(){
-  await sb.auth.signOut();
+  await supabase.auth.signOut();
 }
 
 async function boot(force){
@@ -145,19 +145,19 @@ async function loadCfgProfile(){
   const uid = session.user.id;
 
   // config
-  let { data: c } = await sb.from("config").select("*").eq("user_id", uid).maybeSingle();
+  let { data: c } = await supabase.from("config").select("*").eq("user_id", uid).maybeSingle();
   if(!c){
     const base = { user_id:uid, target_kcal:2500, target_protein:160, target_carbs:250, target_fat:70, reading_pages_target:5, wake_time:"04:40", notify_time:"04:45", sfx_enabled:true, music_enabled:false, music_url:null };
-    const ins = await sb.from("config").upsert(base).select("*").single();
+    const ins = await supabase.from("config").upsert(base).select("*").single();
     c = ins.data || base;
   }
   cfg = c;
 
   // profiles
-  let { data: p } = await sb.from("profiles").select("*").eq("user_id", uid).maybeSingle();
+  let { data: p } = await supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle();
   if(!p){
     const base = { user_id:uid, streak_current:0, streak_best:0 };
-    const ins = await sb.from("profiles").upsert(base).select("*").single();
+    const ins = await supabase.from("profiles").upsert(base).select("*").single();
     p = ins.data || base;
   }
   profile = p;
@@ -166,10 +166,10 @@ async function loadCfgProfile(){
 async function loadToday(){
   const uid = session.user.id;
   const day = isoDate();
-  let { data: d } = await sb.from("daily_logs").select("*").eq("user_id", uid).eq("day", day).maybeSingle();
+  let { data: d } = await supabase.from("daily_logs").select("*").eq("user_id", uid).eq("day", day).maybeSingle();
   if(!d){
     const base = { user_id:uid, day, spirit:false, body:false, mind:false, discipline:false, control:false, reading_pages:0 };
-    const ins = await sb.from("daily_logs").insert(base).select("*").single();
+    const ins = await supabase.from("daily_logs").insert(base).select("*").single();
     d = ins.data || base;
   }
   today = d;
@@ -208,7 +208,7 @@ async function calcWeek(){
   const uid = session.user.id;
   const t = new Date(isoDate());
   const from = new Date(t); from.setDate(from.getDate()-6);
-  const { data } = await sb.from("daily_logs").select("spirit,body,mind,discipline,control").eq("user_id", uid).gte("day", isoDate(from)).lte("day", isoDate(t));
+  const { data } = await supabase.from("daily_logs").select("spirit,body,mind,discipline,control").eq("user_id", uid).gte("day", isoDate(from)).lte("day", isoDate(t));
   let pts=0;
   for(const r of (data||[])){
     pts += (r.spirit?1:0)+(r.body?1:0)+(r.mind?1:0)+(r.discipline?1:0)+(r.control?1:0);
@@ -241,7 +241,7 @@ async function toggleMission(id){
   const prev = score(today);
   const nextVal = !today[id];
   const uid = session.user.id;
-  const { data, error } = await sb.from("daily_logs").update({ [id]: nextVal }).eq("user_id", uid).eq("day", today.day).select("*").single();
+  const { data, error } = await supabase.from("daily_logs").update({ [id]: nextVal }).eq("user_id", uid).eq("day", today.day).select("*").single();
   if(error){ play(sfxErr); return; }
   today = data;
   const now = score(today);
@@ -255,11 +255,11 @@ async function updateStreak(){
   const uid = session.user.id;
   const y = new Date(today.day); y.setDate(y.getDate()-1);
   const yKey = isoDate(y);
-  const { data: yRow } = await sb.from("daily_logs").select("spirit,body,mind,discipline,control").eq("user_id", uid).eq("day", yKey).maybeSingle();
+  const { data: yRow } = await supabase.from("daily_logs").select("spirit,body,mind,discipline,control").eq("user_id", uid).eq("day", yKey).maybeSingle();
   const yScore = yRow ? (yRow.spirit?1:0)+(yRow.body?1:0)+(yRow.mind?1:0)+(yRow.discipline?1:0)+(yRow.control?1:0) : 0;
   const newStreak = (yScore>=4) ? ((profile.streak_current||0)+1) : 1;
   const best = Math.max(profile.streak_best||0, newStreak);
-  const { data } = await sb.from("profiles").update({ streak_current:newStreak, streak_best:best }).eq("user_id", uid).select("*").single();
+  const { data } = await supabase.from("profiles").update({ streak_current:newStreak, streak_best:best }).eq("user_id", uid).select("*").single();
   if(data){ profile = data; play(sfxLevel); }
 }
 
@@ -291,7 +291,7 @@ async function saveLogs(){
     reading_pages: parseInt(el("readPages").value||"0",10),
     weight_kg: nOrNull(el("weight").value),
   };
-  const { data, error } = await sb.from("daily_logs").update(patch).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
+  const { data, error } = await supabase.from("daily_logs").update(patch).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
   if(error){ el("logMsg").textContent=error.message; play(sfxErr); return; }
   today = data;
   play(sfxDone);
@@ -308,12 +308,12 @@ async function addSet(){
   const sets = parseInt(el("wSets").value||"1",10) || 1;
   if(!exercise){ el("workoutMsg").textContent="Coloque o exercício."; play(sfxErr); return; }
   const row = { user_id:session.user.id, day:isoDate(), muscle, exercise, load_kg, reps, sets };
-  const { error } = await sb.from("workout_sets").insert(row);
+  const { error } = await supabase.from("workout_sets").insert(row);
   if(error){ el("workoutMsg").textContent=error.message; play(sfxErr); return; }
 
   // auto body mission
   if(!today.body){
-    const { data } = await sb.from("daily_logs").update({ body:true }).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
+    const { data } = await supabase.from("daily_logs").update({ body:true }).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
     if(data) today = data;
   }
   el("wExercise").value=""; el("wLoad").value=""; el("wReps").value=""; el("wSets").value="1";
@@ -323,7 +323,7 @@ async function addSet(){
 }
 
 async function refreshWorkout(){
-  const { data, error } = await sb.from("workout_sets").select("*").eq("user_id", session.user.id).eq("day", isoDate()).order("created_at",{ascending:false});
+  const { data, error } = await supabase.from("workout_sets").select("*").eq("user_id", session.user.id).eq("day", isoDate()).order("created_at",{ascending:false});
   if(error){ el("workoutMsg").textContent=error.message; return; }
   const host = el("workoutList"); host.innerHTML="";
   for(const r of (data||[])){
@@ -331,14 +331,14 @@ async function refreshWorkout(){
     item.className="item";
     item.innerHTML = `<div><div><strong>${esc(r.muscle)}</strong> — ${esc(r.exercise)}</div><div class="meta">${r.load_kg ?? "—"}kg • ${r.reps ?? "—"} reps • ${r.sets ?? 1} séries</div></div>
       <button class="ghost">Excluir</button>`;
-    item.querySelector("button").onclick = async()=>{ await sb.from("workout_sets").delete().eq("id", r.id).eq("user_id", session.user.id); await refreshWorkout(); };
+    item.querySelector("button").onclick = async()=>{ await supabase.from("workout_sets").delete().eq("id", r.id).eq("user_id", session.user.id); await refreshWorkout(); };
     host.appendChild(item);
   }
   await refreshPR();
 }
 
 async function refreshPR(){
-  const { data } = await sb.from("workout_sets").select("muscle, load_kg, day, exercise").eq("user_id", session.user.id).order("day",{ascending:false});
+  const { data } = await supabase.from("workout_sets").select("muscle, load_kg, day, exercise").eq("user_id", session.user.id).order("day",{ascending:false});
   const best = {};
   for(const r of (data||[])){
     const k=r.muscle; const load=Number(r.load_kg||0);
@@ -362,24 +362,24 @@ async function refreshPR(){
 async function addStudy(){
   el("studyMsg").textContent="";
   const subject = el("sSubject").value.trim();
-  const blocks = parseInt(el("sBlocks").value||"1",10) || 1;
+  const blocks = parseInt(el("supabaselocks").value||"1",10) || 1;
   if(!subject){ el("studyMsg").textContent="Coloque a matéria."; play(sfxErr); return; }
   const row = { user_id:session.user.id, day:isoDate(), subject, blocks };
-  const { error } = await sb.from("study_logs").insert(row);
+  const { error } = await supabase.from("study_logs").insert(row);
   if(error){ el("studyMsg").textContent=error.message; play(sfxErr); return; }
 
   if(!today.mind){
-    const { data } = await sb.from("daily_logs").update({ mind:true }).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
+    const { data } = await supabase.from("daily_logs").update({ mind:true }).eq("user_id", session.user.id).eq("day", today.day).select("*").single();
     if(data) today = data;
   }
-  el("sSubject").value=""; el("sBlocks").value="1";
+  el("sSubject").value=""; el("supabaselocks").value="1";
   play(sfxDone);
   await refreshStudy();
   renderAll();
 }
 
 async function refreshStudy(){
-  const { data, error } = await sb.from("study_logs").select("*").eq("user_id", session.user.id).eq("day", isoDate()).order("created_at",{ascending:false});
+  const { data, error } = await supabase.from("study_logs").select("*").eq("user_id", session.user.id).eq("day", isoDate()).order("created_at",{ascending:false});
   if(error){ el("studyMsg").textContent=error.message; return; }
   const host = el("studyList"); host.innerHTML="";
   for(const r of (data||[])){
@@ -387,7 +387,7 @@ async function refreshStudy(){
     item.className="item";
     item.innerHTML = `<div><div><strong>${esc(r.subject)}</strong></div><div class="meta">${r.blocks} bloco(s)</div></div>
       <button class="ghost">Excluir</button>`;
-    item.querySelector("button").onclick = async()=>{ await sb.from("study_logs").delete().eq("id", r.id).eq("user_id", session.user.id); await refreshStudy(); };
+    item.querySelector("button").onclick = async()=>{ await supabase.from("study_logs").delete().eq("id", r.id).eq("user_id", session.user.id); await refreshStudy(); };
     host.appendChild(item);
   }
 }
@@ -415,7 +415,7 @@ async function saveConfig(){
     notify_time: el("notify").value || "04:45",
     music_url: (el("musicUrl").value||"").trim() || null
   };
-  const { data, error } = await sb.from("config").update(patch).eq("user_id", session.user.id).select("*").single();
+  const { data, error } = await supabase.from("config").update(patch).eq("user_id", session.user.id).select("*").single();
   if(error){ el("cfgMsg").textContent=error.message; play(sfxErr); return; }
   cfg = data;
   el("cfgMsg").textContent="Salvo.";
